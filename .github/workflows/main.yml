@@ -87,8 +87,6 @@ jobs:
     name: 'Publish npm package'
     needs:
       - 'build-node'
-      - 'build-deno'
-      - 'build-browser'
     runs-on: 'ubuntu-latest'
     permissions:
       contents: 'read'
@@ -115,8 +113,6 @@ jobs:
     name: 'Create GitHub release'
     needs:
       - 'build-node'
-      - 'build-deno'
-      - 'build-browser'
     runs-on: 'ubuntu-latest'
     permissions:
       contents: 'write'
