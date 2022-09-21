@@ -82,71 +82,11 @@ jobs:
       - name: 'Test'
         run: 'npm run test:node'
 
-  build-deno:
-    name: 'Build and test on Deno ${{ matrix.deno_version }}'
-    needs: ['lint']
-    runs-on: 'ubuntu-20.04'
-    permissions:
-      contents: 'read'
-    strategy:
-      fail-fast: false
-      matrix:
-        deno_version: ['vx.x.x']
-    env:
-      NODE_VERSION: 'lts/*'
-    steps:
-      - name: 'Checkout'
-        uses: 'actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b'
-      - name: 'Use Node.js ${{ env.NODE_VERSION }}'
-        uses: 'actions/setup-node@2fddd8803e2f5c9604345a0b591c3020ee971a93'
-        with:
-          node-version: '${{ env.NODE_VERSION }}'
-          cache: 'npm'
-      - name: 'Use Deno ${{ matrix.deno_version }}'
-        uses: 'denoland/setup-deno@004814556e37c54a2f6e31384c9e18e983317366'
-        with:
-          deno-version: '${{ matrix.deno_version }}'
-      - name: 'Install'
-        run: 'npm ci'
-      - name: 'Build'
-        run: 'npm run types && npm run build'
-      - name: 'Test'
-        run: 'npm run test:deno'
-
-  build-browser:
-    name: 'Build and test on ${{ matrix.browser }} browser'
-    needs: ['lint']
-    runs-on: 'ubuntu-20.04'
-    permissions:
-      contents: 'read'
-    strategy:
-      fail-fast: false
-      matrix:
-        browser: ['chromium', 'firefox', 'webkit']
-    env:
-      NODE_VERSION: 'lts/*'
-    steps:
-      - name: 'Checkout'
-        uses: 'actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b'
-      - name: 'Use Node.js ${{ env.NODE_VERSION }}'
-        uses: 'actions/setup-node@2fddd8803e2f5c9604345a0b591c3020ee971a93'
-        with:
-          node-version: '${{ env.NODE_VERSION }}'
-          cache: 'npm'
-      - name: 'Install'
-        run: 'npm ci && npx playwright install-deps "${{ matrix.browser }}"'
-      - name: 'Build'
-        run: 'npm run types && npm run build'
-      - name: 'Test'
-        run: 'npm run test:browser:"${{ matrix.browser }}"'
 
   publish-npm:
     name: 'Publish npm package'
-    if: "startsWith(github.ref, 'refs/tags/v')"
     needs:
       - 'build-node'
-      - 'build-deno'
-      - 'build-browser'
     runs-on: 'ubuntu-latest'
     permissions:
       contents: 'read'
@@ -164,18 +104,13 @@ jobs:
         env:
           NODE_AUTH_TOKEN: '${{ secrets.NPM_TOKEN }}'
         run: |
-          PKG_NAME="$(jq -r '.name' ./package.json)"; PKG_VERSION="$(jq -r '.version' ./package.json)"
-          if [ "$(npm view "${PKG_NAME:?}" versions --json | jq -r --arg v "${PKG_VERSION:?}" 'index($v)')" = 'null' ]; then
-            npm publish
-          fi
+          npm publish
+          
 
   release-github:
     name: 'Create GitHub release'
-    if: "startsWith(github.ref, 'refs/tags/v')"
     needs:
       - 'build-node'
-      - 'build-deno'
-      - 'build-browser'
     runs-on: 'ubuntu-latest'
     permissions:
       contents: 'write'
