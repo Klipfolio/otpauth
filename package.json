@@ -1,5 +1,5 @@
 {
-  "name": "otpauth",
+  "name": "@klipfolio/otpauth",
   "version": "8.0.3",
   "description": "One Time Password (HOTP/TOTP) library for Node.js, Deno and browsers",
   "keywords": [
@@ -24,10 +24,10 @@
   "homepage": "https://github.com/hectorm/otpauth",
   "repository": {
     "type": "git",
-    "url": "https://github.com/hectorm/otpauth.git"
+    "url": "https://github.com/klipfolio/otpauth.git"
   },
   "bugs": {
-    "url": "https://github.com/hectorm/otpauth/issues"
+    "url": "https://github.com/klipfolio/otpauth/issues"
   },
   "main": "./dist/otpauth.cjs.js",
   "module": "./dist/otpauth.esm.js",
